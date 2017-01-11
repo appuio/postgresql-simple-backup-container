@@ -16,7 +16,7 @@ RUN pip install -e hg+https://bitbucket.org/dbenamy/devcron#egg=devcron
 
 WORKDIR /opt/app-root/src
 
-ADD ../bin ./bin
+ADD ./bin ./bin
 RUN chmod -R 777 /opt/app-root/src
 
 USER 1001
