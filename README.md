@@ -22,7 +22,7 @@ $ oc new-app https://github.com/appuio/postgresql-simple-backup-container.git \
      --context-dir=9.5 \
      -l app=backup
 
-$ oc env dc postgresql-simple-backup-container -e POSTGRES_USER=user -e PGPASSWORD=pw -e POSTGRES_SERVICE_HOST=mysql -e POSTGRES_SERVICE_PORT=port -e POSTGRES_DATABASE=database -e BACKUP_DATA_DIR=/tmp/ -e BACKUP_KEEP=5 -e BACKUP_MINUTE=10 -e BACKUP_HOUR=11
+$ oc env dc postgresql-simple-backup-container -e POSTGRESQL_USER=user -e POSTGRESQL_PASSWORD=pw -e POSTGRESQL_HOST=postgresql -e POSTGRESQL_DATABASE=database -e BACKUP_DATA_DIR=/dbbackup/ -e BACKUP_KEEP=5 -e BACKUP_MINUTE=10 -e BACKUP_HOUR=11
 ```
 
 This will create a container for backups of a PostgreSQL database 9.5. To backup an other version, change the value of the `--context-dir` option.

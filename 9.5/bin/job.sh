@@ -1,6 +1,12 @@
 #!/bin/sh
 DATE=$(date +%Y-%m-%d-%H-%M)
-dump=$(pg_dump --username=$POSTGRES_USER --host=$POSTGRES_SERVICE_HOST --port=$POSTGRES_SERVICE_PORT $POSTGRES_DATABASE)
+dump=$(pg_dump --username=$POSTGRESQL_USER --host=$POSTGRESQL_HOST -w $POSTGRESQL_DATABASE)
+
+export PGPASSFILE=/tmp/pgpass
+
+echo $POSTGRESQL_HOST":5432:"$POSTGRESQL_DATABASE":"$POSTGRESQL_USER":"$POSTGRESQL_PASSWORD > $PGPASSFILE
+chmod 600 $PGPASSFILE
+chown $UID:$UID $PGPASSFILE
 
 if [ $? -ne 0 ]; then
     echo "db-dump not successful: ${DATE}"
