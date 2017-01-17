@@ -22,7 +22,7 @@ $ oc new-app \
     -e PGPASSWORD=pw \
     -e POSTGRES_SERVICE_HOST=postgres \
     -e POSTGRES_SERVICE_PORT=port \
-    -e POSTGRES_DATABASE=database \
+    -e POSTGRESQL_DATABASE=database \
     -e BACKUP_DATA_DIR=/tmp/ \
     -e BACKUP_KEEP=5 \
     -e BACKUP_MINUTE=10 \
@@ -49,7 +49,7 @@ $ oc env dc postgresql-simple-backup-container \
     -e PGPASSWORD=pw \
     -e POSTGRES_SERVICE_HOST=postgres \
     -e POSTGRES_SERVICE_PORT=port \
-    -e POSTGRES_DATABASE=database \
+    -e POSTGRESQL_DATABASE=database \
     -e BACKUP_DATA_DIR=/tmp/ \
     -e BACKUP_KEEP=5 \
     -e BACKUP_MINUTE=10 \

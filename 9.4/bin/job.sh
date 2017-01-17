@@ -1,6 +1,6 @@
 #!/bin/sh
 DATE=$(date +%Y-%m-%d-%H-%M)
-dump=$(pg_dump --username=$POSTGRES_USER --host=$POSTGRES_SERVICE_HOST --port=$POSTGRES_SERVICE_PORT $POSTGRES_DATABASE)
+dump=$(pg_dump --username=$POSTGRES_USER --host=$POSTGRES_SERVICE_HOST --port=$POSTGRES_SERVICE_PORT $POSTGRESQL_DATABASE)
 
 if [ $? -ne 0 ]; then
     echo "db-dump not successful: ${DATE}"
