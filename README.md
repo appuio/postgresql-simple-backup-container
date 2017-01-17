@@ -20,8 +20,8 @@ Before executing the following commands make sure that you are logged into OpenS
 $ oc new-app \
     -e POSTGRESQL_USER=user \
     -e PGPASSWORD=pw \
-    -e POSTGRES_SERVICE_HOST=postgres \
-    -e POSTGRES_SERVICE_PORT=port \
+    -e POSTGRESQL_SERVICE_HOST=postgres \
+    -e POSTGRESQL_SERVICE_PORT=port \
     -e POSTGRESQL_DATABASE=database \
     -e BACKUP_DATA_DIR=/tmp/ \
     -e BACKUP_KEEP=5 \
@@ -47,8 +47,8 @@ $ oc new-app https://github.com/appuio/postgresql-simple-backup-container.git \
 $ oc env dc postgresql-simple-backup-container \
     -e POSTGRESQL_USER=user \
     -e PGPASSWORD=pw \
-    -e POSTGRES_SERVICE_HOST=postgres \
-    -e POSTGRES_SERVICE_PORT=port \
+    -e POSTGRESQL_SERVICE_HOST=postgres \
+    -e POSTGRESQL_SERVICE_PORT=port \
     -e POSTGRESQL_DATABASE=database \
     -e BACKUP_DATA_DIR=/tmp/ \
     -e BACKUP_KEEP=5 \
