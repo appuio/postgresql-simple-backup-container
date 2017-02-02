@@ -1,0 +1,231 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "postgresql-backup-ephemeral",
+        "creationTimestamp": null,
+        "annotations": {
+            "openshift.io/display-name": "PostgreSQL Backup",
+            "description": "PostgreSQL database backup container",
+            "iconClass": "icon-postgresql",
+            "tags": "database,postgresql,backup"
+        }
+    },
+    "message": "The backup container has been created in your project with app name: ${APP_NAME}.\n\n       Database Name: ${POSTGRESQL_SERVICE_HOST}\n       Username: ${POSTGRESQL_USER}\n       Password: ${POSTGRESQL_PASSWORD}\n  Backups to keep: ${BACKUP_KEEP}\n  Cron job config: '${BACKUP_MINUTE} ${BACKUP_HOUR} * * *'\n\nFor more information about using this template, see https://github.com/appuio/postgresql-simple-backup-container.",
+    "labels": {
+        "template": "postgresql-backup-ephemeral"
+    },
+    "objects": [{
+        "kind": "Secret",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "${APP_NAME}"
+        },
+        "stringData": {
+            "database-user": "${POSTGRESQL_USER}",
+            "database-password": "${POSTGRESQL_PASSWORD}"
+        }
+    }, {
+        "kind": "ImageStream",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "postgresql-simple-backup-container",
+            "creationTimestamp": null,
+            "labels": {
+                "app": "${APP_NAME}"
+            }
+        },
+        "spec": {
+            "tags": [{
+                "name": "${POSTGRESQL_VERSION}",
+                "annotations": {
+                    "openshift.io/imported-from": "appuio/postgresql-simple-backup-container:${POSTGRESQL_VERSION}"
+                },
+                "from": {
+                    "kind": "DockerImage",
+                    "name": "appuio/postgresql-simple-backup-container:${POSTGRESQL_VERSION}"
+                },
+                "generation": null,
+                "importPolicy": {}
+            }]
+        },
+        "status": {
+            "dockerImageRepository": ""
+        }
+    }, {
+        "kind": "DeploymentConfig",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "postgresql-simple-backup-container",
+            "creationTimestamp": null,
+            "labels": {
+                "app": "${APP_NAME}"
+            },
+            "annotations": {
+                "openshift.io/generated-by": "OpenShiftNewApp"
+            }
+        },
+        "spec": {
+            "strategy": {
+                "resources": {}
+            },
+            "triggers": [{
+                "type": "ConfigChange"
+            }, {
+                "type": "ImageChange",
+                "imageChangeParams": {
+                    "automatic": true,
+                    "containerNames": [
+                        "postgresql-simple-backup-container"
+                    ],
+                    "from": {
+                        "kind": "ImageStreamTag",
+                        "name": "postgresql-simple-backup-container:${POSTGRESQL_VERSION}"
+                    }
+                }
+            }],
+            "replicas": 1,
+            "test": false,
+            "selector": {
+                "app": "${APP_NAME}",
+                "deploymentconfig": "postgresql-simple-backup-container"
+            },
+            "template": {
+                "metadata": {
+                    "creationTimestamp": null,
+                    "labels": {
+                        "app": "${APP_NAME}",
+                        "deploymentconfig": "postgresql-simple-backup-container"
+                    },
+                    "annotations": {
+                        "openshift.io/container.postgresql-simple-backup-container.image.entrypoint": "[\"container-entrypoint\",\"/bin/sh\",\"-c\",\"./bin/run.sh\"]",
+                        "openshift.io/generated-by": "OpenShiftNewApp"
+                    }
+                },
+                "spec": {
+                    "volumes": [{
+                        "name": "${APP_NAME}-data",
+                        "emptyDir": {}
+                    }],
+                    "containers": [{
+                        "name": "postgresql-simple-backup-container",
+                        "image": "appuio/postgresql-simple-backup-container:${POSTGRESQL_VERSION}",
+                        "ports": [{
+                            "containerPort": 5432,
+                            "protocol": "TCP"
+                        }],
+                        "env": [{
+                            "name": "POSTGRESQL_USER",
+                            "valueFrom": {
+                                "secretKeyRef": {
+                                    "name": "${APP_NAME}",
+                                    "key": "database-user"
+                                }
+                            }
+                        }, {
+                            "name": "POSTGRESQL_PASSWORD",
+                            "valueFrom": {
+                                "secretKeyRef": {
+                                    "name": "${APP_NAME}",
+                                    "key": "database-password"
+                                }
+                            }
+                        }, {
+                            "name": "POSTGRESQL_SERVICE_HOST",
+                            "value": "${POSTGRESQL_SERVICE_HOST}"
+                        }, {
+                            "name": "POSTGRESQL_SERVICE_PORT",
+                            "value": "${POSTGRESQL_SERVICE_PORT}"
+                        }, {
+                            "name": "POSTGRESQL_DATABASE",
+                            "value": "${POSTGRESQL_DATABASE}"
+                        }, {
+                            "name": "BACKUP_DATA_DIR",
+                            "value": "${BACKUP_DATA_DIR}"
+                        }, {
+                            "name": "BACKUP_KEEP",
+                            "value": "${BACKUP_KEEP}"
+                        }, {
+                            "name": "BACKUP_MINUTE",
+                            "value": "${BACKUP_MINUTE}"
+                        }, {
+                            "name": "BACKUP_HOUR",
+                            "value": "${BACKUP_HOUR}"
+                        }],
+                        "resources": {},
+                        "volumeMounts": [{
+                            "name": "${APP_NAME}-data",
+                            "mountPath": "/var/lib/pgsql/data"
+                        }]
+                    }]
+                }
+            }
+        },
+        "status": {}
+    }],
+    "parameters": [{
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "App name for internal openshift labels",
+      "generate": "expression",
+      "from": "backup-[a-z0-9]{3}",
+      "required": true
+    }, {
+        "name": "POSTGRESQL_SERVICE_HOST",
+        "displayName": "Database Service Name",
+        "description": "The name of the OpenShift Service exposed for the database.",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_SERVICE_PORT",
+        "displayName": "Database Service Port",
+        "description": "The port of the OpenShift Service exposed for the database.",
+        "value": "5432",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_USER",
+        "displayName": "PostgreSQL Connection Username",
+        "description": "Username for PostgreSQL user that will be used for accessing the database.",
+        "generate": "expression",
+        "from": "user[A-Z0-9]{3}",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_PASSWORD",
+        "displayName": "PostgreSQL Connection Password",
+        "description": "Password for the PostgreSQL connection user.",
+        "generate": "expression",
+        "from": "[a-zA-Z0-9]{16}",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_DATABASE",
+        "displayName": "PostgreSQL Database Name",
+        "description": "Name of the PostgreSQL database accessed.",
+        "value": "database",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_VERSION",
+        "displayName": "Version of PostgreSQL database",
+        "description": "Version of PostgreSQL database to be backed up (9.2, 9.4, 9.5 or latest).",
+        "value": "9.5",
+        "required": true
+    }, {
+        "name": "BACKUP_DATA_DIR",
+        "description": "where to store the Backups, typically this directory would be a persistent Volume",
+        "value": "/opt/app-root/backup/",
+        "required": true
+    }, {
+        "name": "BACKUP_KEEP",
+        "description": "how many Backups are kept",
+        "value": "5",
+        "required": true
+    }, {
+        "name": "BACKUP_MINUTE",
+        "description": "cron Minute (eg. 10) ",
+        "value": "10",
+        "required": true
+    }, {
+        "name": "BACKUP_HOUR",
+        "description": "cron Hour (eg. 11,19) every day at 11am and 7pm",
+        "value": "11,19",
+        "required": true
+    }]
+}
