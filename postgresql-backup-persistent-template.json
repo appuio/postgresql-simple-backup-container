@@ -2,18 +2,18 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "postgresql-backup-ephemeral",
+        "name": "postgresql-backup-persistent",
         "creationTimestamp": null,
         "annotations": {
-            "openshift.io/display-name": "PostgreSQL Backup (test)",
-            "description": "PostgreSQL database backup container (without persistent storage)",
+            "openshift.io/display-name": "PostgreSQL Backup",
+            "description": "PostgreSQL database backup container",
             "iconClass": "icon-postgresql",
             "tags": "database,postgresql,backup"
         }
     },
     "message": "The backup container has been created in your project with app name: ${APP_NAME}.\n\n       Database Name: ${POSTGRESQL_SERVICE_HOST}\n       Username: ${POSTGRESQL_USER}\n       Password: ${POSTGRESQL_PASSWORD}\n Backup directory: ${BACKUP_DATA_DIR}\n  Backups to keep: ${BACKUP_KEEP}\n  Cron job config: '${BACKUP_MINUTE} ${BACKUP_HOUR} * * *'\n\nFor more information about using this template, see https://github.com/appuio/postgresql-simple-backup-container.",
     "labels": {
-        "template": "postgresql-backup-ephemeral"
+        "template": "postgresql-backup-persistent"
     },
     "objects": [{
         "kind": "Secret",
@@ -24,6 +24,22 @@
         "stringData": {
             "database-user": "${POSTGRESQL_USER}",
             "database-password": "${POSTGRESQL_PASSWORD}"
+        }
+    }, {
+        "kind": "PersistentVolumeClaim",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "${APP_NAME}"
+        },
+        "spec": {
+            "accessModes": [
+                "ReadWriteOnce"
+            ],
+            "resources": {
+                "requests": {
+                    "storage": "${VOLUME_CAPACITY}"
+                }
+            }
         }
     }, {
         "kind": "ImageStream",
@@ -105,7 +121,9 @@
                 "spec": {
                     "volumes": [{
                         "name": "${APP_NAME}-data",
-                        "emptyDir": {}
+                        "persistentVolumeClaim": {
+                            "claimName": "${APP_NAME}"
+                        }
                     }],
                     "containers": [{
                         "name": "postgresql-simple-backup-container",
@@ -206,6 +224,12 @@
         "displayName": "Version of PostgreSQL database",
         "description": "Version of PostgreSQL database to be backed up (9.2, 9.4, 9.5 or latest).",
         "value": "9.5",
+        "required": true
+    }, {
+        "name": "VOLUME_CAPACITY",
+        "displayName": "Volume Capacity",
+        "description": "Volume space available for data, e.g. 512Mi, 2Gi.",
+        "value": "1Gi",
         "required": true
     }, {
         "name": "BACKUP_DATA_DIR",

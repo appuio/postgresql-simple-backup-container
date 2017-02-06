@@ -4,7 +4,7 @@ Provide a PostgreSQL database backup container that does backups using a cron jo
 Full backups using `pg_basebackup` are available in the [postgresql-backup-container](https://github.com/appuio/postgresql-backup-container) repository.
 
 ## Different PostgreSQL versions
-Backup for different versions are provided:
+Backup for different PostgreSQL database versions are provided:
 * 9.5
 * 9.4
 * 9.2
@@ -12,6 +12,23 @@ Backup for different versions are provided:
 Use the Docker file of the directory of your desired PostgreSQL version.
 
 ## How to deploy the backup container
+
+### Deploy by OpenShift template
+Use the *postgresql-backup-persistent-template.json* template for production.
+It will claim a persistent volume to store the backups.
+
+The *ephemeral* template is only more for testing or extend it to store the backup outside of OpenShift.  
+
+```
+$ oc process -f postgresql-backup-persistent-template.json \
+    -l app=backup \
+    -v \
+    POSTGRESQL_USER=user \
+    POSTGRESQL_PASSWORD=pw \
+    POSTGRESQL_SERVICE_HOST=postgres \
+    POSTGRESQL_DATABASE=database \
+| oc create -f -
+```
 
 ### Deploy image from Docker Hub
 Before executing the following commands make sure that you are logged into OpenShift via the commandline (`oc login`) and using the correct project (`oc project`). The postgresql service doesn't have to be located in the same project, if you can access it remotely.
