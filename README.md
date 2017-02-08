@@ -9,15 +9,15 @@ Backup for different PostgreSQL database versions are provided:
 * 9.4
 * 9.2
 
-Use the Docker file of the directory of your desired PostgreSQL version.
+Use the Docker file with the postfix of your desired PostgreSQL version.
 
 ## How to deploy the backup container
 
 ### Deploy by OpenShift template
-Use the *postgresql-backup-persistent-template.json* template for production.
+Use the **postgresql-backup-persistent-template.json** template for production.
 It will claim a persistent volume to store the backups.
 
-The *ephemeral* template is only more for testing or extend it to store the backup outside of OpenShift.  
+The **ephemeral** template is only more for testing or extend it to store the backup outside of OpenShift.  
 
 ```
 $ oc process -f postgresql-backup-persistent-template.json \
@@ -58,7 +58,7 @@ The first command creates the container. The second command configures the conta
 ```
 $ oc new-app https://github.com/appuio/postgresql-simple-backup-container.git \
     --strategy=docker \
-    --context-dir=9.5 \
+    --context-dir=Dockerfile_9.5 \
     -l app=backup
 
 $ oc env dc postgresql-simple-backup-container \
