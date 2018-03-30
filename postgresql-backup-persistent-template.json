@@ -234,7 +234,7 @@
     }, {
         "name": "BACKUP_DATA_DIR",
         "description": "where to store the Backups, typically this directory would be a persistent Volume",
-        "value": "/var/lib/pgsql/backup",
+        "value": "/var/lib/pgsql/data/backup",
         "required": true
     }, {
         "name": "BACKUP_KEEP",
